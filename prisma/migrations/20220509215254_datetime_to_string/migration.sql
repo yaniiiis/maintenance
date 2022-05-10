@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "assurances" ALTER COLUMN "date_debut" DROP DEFAULT,
+ALTER COLUMN "date_debut" SET DATA TYPE TEXT,
+ALTER COLUMN "date_fin" SET DATA TYPE TEXT;
