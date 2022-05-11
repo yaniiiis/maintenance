@@ -71,20 +71,24 @@ model Mecanicien {
   adresse        String @db.VarChar(255)
   description    String @db.VarChar(500)
 
+  Maintenance Maintenance[]
   @@map(name: "mecaniciens")
 }
 
 model Maintenance {
-  id          Int                 @id @unique @default(autoincrement())
-  nom         String              @db.VarChar(255)
-  vehicule    Vehicule            @relation(fields: [vehicule_id], references: [id])
-  vehicule_id Int
-  type        TypeMaintenance     @relation(fields: [type_id], references: [id])
-  type_id     Int
-  pieces      Maintenance_Piece[]
-  description String              @db.VarChar(500)
-  cout        Decimal
-  fichier     String              @db.VarChar(255)
+  id            Int                 @id @unique @default(autoincrement())
+  nom           String              @db.VarChar(255)
+  vehicule      Vehicule            @relation(fields: [vehicule_id], references: [id])
+  vehicule_id   Int
+  mecanicien    Mecanicien          @relation(fields: [mecanicien_id], references: [id])
+  mecanicien_id Int
+  type          TypeMaintenance     @relation(fields: [type_id], references: [id])
+  type_id       Int
+  pieces        Maintenance_Piece[]
+  description   String              @db.VarChar(500)
+  cout          Decimal
+  fichier       String              @db.VarChar(255)
+  date          DateTime            @default(now())
 
   @@map(name: "maintenances")
 }
