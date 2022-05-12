@@ -8,10 +8,13 @@ import typeMaintenanceRouter from './routers/type_maintenance_router.js';
 import vehiculeRouter from './routers/vehicule_router.js';
 
 const app = express();
+import cors from 'cors';
+
 app.use(express.json());
+app.use(cors())
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
+    res.send('Hello World');
 });
 
 app.use('/api/vehicule', vehiculeRouter);
@@ -23,5 +26,5 @@ app.use('/api/maintenancetype', typeMaintenanceRouter);
 app.use('/api/assurance', assuranceRouter);
 
 app.listen(5000, () => {
-  console.log('listening at port 5000...');
+    console.log('listening at port 5000...');
 });
