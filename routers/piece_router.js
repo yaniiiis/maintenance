@@ -1,5 +1,6 @@
 import express from 'express';
 import Prisma from '@prisma/client';
+import { isAuth } from '../utils.js';
 
 const { PrismaClient } = Prisma;
 
@@ -7,9 +8,13 @@ const pieceRouter = express.Router();
 const { piece, fournisseur } = new PrismaClient();
 
 //toute les piéces
-pieceRouter.get('/', async (req, res) => {
+pieceRouter.get('/', isAuth, async (req, res) => {
   try {
+    const user_id = req.user_id;
     const pieces = await piece.findMany({
+      where: {
+        user_id,
+      },
       include: {
         fournisseur: true,
       },
@@ -25,9 +30,13 @@ pieceRouter.get('/', async (req, res) => {
 pieceRouter.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await piece.findUnique({
+    const user_id = req.user_id;
+    const result = await piece.findFirst({
       where: {
-        id: Number(id),
+        AND: {
+          id: Number(id),
+          user_id,
+        },
       },
     });
     res.status(200).send(result);
@@ -37,49 +46,60 @@ pieceRouter.get('/:id', async (req, res) => {
 });
 
 //Ajouter un piece
-pieceRouter.post('/', async (req, res) => {
+pieceRouter.post('/', isAuth, async (req, res) => {
   try {
+    const user_id = req.user_id;
     const { nom, quantite, fournisseur_id } = req.body;
-    const fournisseurExist = await fournisseur.findUnique({
+    const fournisseurExist = await fournisseur.findFirst({
       where: {
-        id: Number(fournisseur_id),
+        AND: {
+          id: Number(fournisseur_id),
+          user_id,
+        },
       },
     });
 
-    if (fournisseurExist) {
-      const createdPiece = await piece.createMany({
-        data: [
-          {
-            nom,
-            quantite,
-            fournisseur_id,
-          },
-        ],
-      });
-      res.status(201).send(createdPiece);
-    } else {
-      res.status(404).send('Fournisseur not exist');
+    if (!fournisseurExist) {
+      return res.status(404).send('Fournisseur not found');
     }
+    const createdPiece = await piece.createMany({
+      data: [
+        {
+          user_id,
+          nom,
+          quantite,
+          fournisseur_id,
+        },
+      ],
+    });
+    res.status(201).send(createdPiece);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
 //modifier une piece
-pieceRouter.put('/:id', async (req, res) => {
+pieceRouter.put('/:id', isAuth, async (req, res) => {
   try {
+    const user_id = req.user_id;
     const { id } = req.params;
 
     const { nom, quantite, fournisseur_id } = req.body;
-    const pieceExist = await piece.findUnique({
+    const pieceExist = await piece.findFirst({
       where: {
-        id: Number(id),
+        AND: {
+          id: Number(id),
+          user_id,
+        },
       },
     });
     if (pieceExist) {
-      const updatedFournisseur = await piece.update({
+      const updatedFournisseur = await piece.updateMany({
         where: {
-          id: Number(id),
+          AND: {
+            id: Number(id),
+            user_id,
+          },
         },
         data: {
           nom,
@@ -97,19 +117,26 @@ pieceRouter.put('/:id', async (req, res) => {
 });
 
 //supprimer une piece
-pieceRouter.delete('/:id', async (req, res) => {
+pieceRouter.delete('/:id', isAuth, async (req, res) => {
   try {
     const { id } = req.params;
+    const user_id = req.user_id;
 
-    const pieceExist = await piece.findUnique({
+    const pieceExist = await piece.findFirst({
       where: {
-        id: Number(id),
+        AND: {
+          id: Number(id),
+          user_id,
+        },
       },
     });
     if (pieceExist) {
-      const deletedPiece = await piece.delete({
+      const deletedPiece = await piece.deleteMany({
         where: {
-          id: Number(id),
+          AND: {
+            id: Number(id),
+            user_id,
+          },
         },
       });
       res.status(200).send('piece deleted');
@@ -122,9 +149,13 @@ pieceRouter.delete('/:id', async (req, res) => {
 });
 
 //filtrer les pieces
-pieceRouter.post('/filtrer', async (req, res) => {
+pieceRouter.post('/filtrer', isAuth, async (req, res) => {
   try {
+    const user_id = req.user_id;
+
     const data = req.body;
+    data.user_id = user_id;
+
     const filtredPieces = await piece.findMany({
       where: data,
     });
