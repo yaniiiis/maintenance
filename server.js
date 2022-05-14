@@ -9,8 +9,9 @@ import userRouter from './routers/user_router.js';
 import vehiculeRouter from './routers/vehicule_router.js';
 
 const app = express();
-app.use(express.json());
 import cors from 'cors';
+
+app.use(express.json());
 
 app.get('/', (req, res) => {
     res.send('Hello World');
