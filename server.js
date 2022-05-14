@@ -10,10 +10,13 @@ import vehiculeRouter from './routers/vehicule_router.js';
 
 const app = express();
 app.use(express.json());
+import cors from 'cors';
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
+    res.send('Hello World');
 });
+app.use(cors())
+
 
 app.use('/api/vehicule', vehiculeRouter);
 app.use('/api/fournisseur', fournisseurRouter);
@@ -25,5 +28,5 @@ app.use('/api/assurance', assuranceRouter);
 app.use('/api/user', userRouter);
 
 app.listen(5000, () => {
-  console.log('listening at port 5000...');
+    console.log('listening at port 5000...');
 });
