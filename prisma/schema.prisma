@@ -11,14 +11,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                 Int                 @id @default(autoincrement())
+  active             Boolean             @default(true)
+  vehicules          Vehicule[]
+  assurances         Assurance[]
+  fournisseurs       Fournisseur[]
+  pieces             Piece[]
+  mecaniciens        Mecanicien[]
+  maintenances       Maintenance[]
+  maintenance_pieces Maintenance_Piece[]
+
+  @@map(name: "users")
+}
+
 model Vehicule {
   id              Int           @id @unique @default(autoincrement())
+  user            User          @relation(fields: [user_id], references: [id])
+  user_id         Int           @default(1)
   traqueur        String        @db.VarChar(255)
   nom             String        @db.VarChar(255)
   immatriculation String        @db.VarChar(255)
   numero_chassis  String        @db.VarChar(255)
   carburant       String
-  assurance       Assurance[]
+  assurance       Assurance?
   photo           String        @db.VarChar(255)
   maintenances    Maintenance[]
 
@@ -29,16 +45,20 @@ model Vehicule {
 model Assurance {
   id            Int      @id @unique @default(autoincrement())
   numero_police String   @db.VarChar(255)
+  user          User     @relation(fields: [user_id], references: [id])
+  user_id       Int      @default(1)
   date_debut    String
   date_fin      String
   vehicule      Vehicule @relation(fields: [vehicule_id], references: [id], onDelete: Cascade)
-  vehicule_id   Int
+  vehicule_id   Int      @unique
 
   @@map(name: "assurances")
 }
 
 model Fournisseur {
   id             Int     @id @unique @default(autoincrement())
+  user           User    @relation(fields: [user_id], references: [id])
+  user_id        Int     @default(1)
   nom            String  @db.VarChar(255)
   prenom         String  @db.VarChar(255)
   nom_entreprise String  @db.VarChar(255)
@@ -53,6 +73,8 @@ model Fournisseur {
 
 model Piece {
   id             Int                 @id @unique @default(autoincrement())
+  user           User                @relation(fields: [user_id], references: [id])
+  user_id        Int                 @default(1)
   nom            String              @unique @db.VarChar(255)
   quantite       Int
   fournisseur    Fournisseur         @relation(fields: [fournisseur_id], references: [id])
@@ -64,6 +86,8 @@ model Piece {
 
 model Mecanicien {
   id             Int    @id @unique @default(autoincrement())
+  user           User   @relation(fields: [user_id], references: [id])
+  user_id        Int    @default(1)
   nom            String @db.VarChar(255)
   prenom         String @db.VarChar(255)
   nom_entreprise String @db.VarChar(255)
@@ -77,10 +101,12 @@ model Mecanicien {
 
 model Maintenance {
   id            Int                 @id @unique @default(autoincrement())
+  user          User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id       Int                 @default(1)
   nom           String              @db.VarChar(255)
-  vehicule      Vehicule            @relation(fields: [vehicule_id], references: [id])
+  vehicule      Vehicule            @relation(fields: [vehicule_id], references: [id], onDelete: Cascade)
   vehicule_id   Int
-  mecanicien    Mecanicien          @relation(fields: [mecanicien_id], references: [id])
+  mecanicien    Mecanicien          @relation(fields: [mecanicien_id], references: [id], onDelete: Cascade)
   mecanicien_id Int
   type          TypeMaintenance     @relation(fields: [type_id], references: [id])
   type_id       Int
@@ -102,7 +128,9 @@ model TypeMaintenance {
 }
 
 model Maintenance_Piece {
-  maintenance    Maintenance @relation(fields: [maintenance_id], references: [id])
+  maintenance    Maintenance @relation(fields: [maintenance_id], references: [id], onDelete: Cascade)
+  user           User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id        Int         @default(1)
   maintenance_id Int
   piece          Piece       @relation(fields: [piece_id], references: [id])
   piece_id       Int
