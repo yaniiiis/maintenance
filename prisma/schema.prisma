@@ -2,8 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "binary"
+  provider        = "prisma-client-js"
+  engineType      = "binary"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -112,6 +113,7 @@ model Maintenance {
   type_id       Int
   pieces        Maintenance_Piece[]
   description   String              @db.VarChar(500)
+  type2         Type2
   cout          Decimal
   fichier       String              @db.VarChar(255)
   date          DateTime            @default(now())
@@ -138,4 +140,9 @@ model Maintenance_Piece {
 
   @@id([maintenance_id, piece_id])
   @@map(name: "maintenance_pieces")
+}
+
+enum Type2 {
+  Curative
+  Preventive
 }
