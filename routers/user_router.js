@@ -41,7 +41,8 @@ userRouter.post('/superusertoken', async(req, res) => {
 // CREATE; check navixy super user hash and CREATE new user if the hash is verified
 userRouter.post('/', async(req, res) => {
     try {
-        const { hash } = req.body;
+        const authorization = req.headers.authorization;
+        const hash = authorization.slice(7, authorization.length);
         if (!hash) {
             return res.status(401).send('No hash found');
         }
@@ -67,7 +68,8 @@ userRouter.post('/', async(req, res) => {
 //set user active
 userRouter.put('/', async(req, res) => {
     try {
-        const { hash } = req.body;
+        const authorization = req.headers.authorization;
+        const hash = authorization.slice(7, authorization.length);
         if (!hash) {
             return res.status(401).send('No hash found');
         }
@@ -76,11 +78,12 @@ userRouter.put('/', async(req, res) => {
                 hash: hash,
             }
         );
+        const { success } = data;
+
         if (!success) {
             return res.status(401).send('Invalid hash');
         }
 
-        const { success } = data;
         const { id, active } = req.body;
         const userExist = await user.findUnique({
             where: {
@@ -107,7 +110,10 @@ userRouter.put('/', async(req, res) => {
 //delete user
 userRouter.delete('/:id', async(req, res) => {
     try {
-        const { hash } = req.body;
+        const authorization = req.headers.authorization;
+        const hash = authorization.slice(7, authorization.length);
+
+
         if (!hash) {
             return res.status(401).send('No hash found');
         }
@@ -121,12 +127,41 @@ userRouter.delete('/:id', async(req, res) => {
             return res.status(401).send('Invalid hash');
         }
         const { id } = req.params;
-        const deletedUser = await user.delete({
+        const deletedUser = await user.deleteMany({
             where: {
-                id,
+                AND: {
+                    id: Number(id),
+                },
             },
         });
         res.status(200).send('User deleted');
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+
+
+userRouter.get('/', async(req, res) => {
+    try {
+        const authorization = req.headers.authorization;
+        const hash = authorization.slice(7, authorization.length);
+        if (!hash) {
+            return res.status(401).send('No hash found');
+        }
+        const { data } = await axios.post(
+            'https://www.mrigel.dz/api/panel/dealer/get_info', {
+                hash: hash,
+            }
+        );
+        const { success } = data;
+        if (!success) {
+            return res.status(401).send('Invalid hash');
+        }
+
+        const allUsers = await user.findMany();
+
+        res.status(201).send(allUsers);
     } catch (error) {
         res.status(500).send(error.message);
     }
