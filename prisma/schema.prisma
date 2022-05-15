@@ -4,6 +4,7 @@
 generator client {
   provider   = "prisma-client-js"
   engineType = "binary"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -112,11 +113,17 @@ model Maintenance {
   type_id       Int
   pieces        Maintenance_Piece[]
   description   String              @db.VarChar(500)
+  type2 Type2
   cout          Decimal
   fichier       String              @db.VarChar(255)
   date          DateTime            @default(now())
 
   @@map(name: "maintenances")
+}
+
+enum Type2 {
+  Curative
+  Preventive
 }
 
 model TypeMaintenance {
