@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "binary"
+  provider        = "prisma-client-js"
+  engineType      = "binary"
   previewFeatures = ["interactiveTransactions"]
 }
 
@@ -28,7 +28,7 @@ model User {
 
 model Vehicule {
   id              Int           @id @default(autoincrement())
-  user            User          @relation(fields: [user_id], references: [id],  onDelete: Cascade)
+  user            User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id         Int           @default(1)
   traqueur        String        @db.VarChar(255)
   nom             String        @db.VarChar(255)
@@ -46,7 +46,7 @@ model Vehicule {
 model Assurance {
   id            Int      @id @unique @default(autoincrement())
   numero_police String   @db.VarChar(255)
-  user          User     @relation(fields: [user_id], references: [id],  onDelete: Cascade)
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id       Int      @default(1)
   date_debut    String
   date_fin      String
@@ -58,7 +58,7 @@ model Assurance {
 
 model Fournisseur {
   id             Int     @id @unique @default(autoincrement())
-  user           User    @relation(fields: [user_id], references: [id],  onDelete: Cascade)
+  user           User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id        Int     @default(1)
   nom            String  @db.VarChar(255)
   prenom         String  @db.VarChar(255)
@@ -74,7 +74,7 @@ model Fournisseur {
 
 model Piece {
   id             Int                 @id @unique @default(autoincrement())
-  user           User                @relation(fields: [user_id], references: [id],  onDelete: Cascade)
+  user           User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id        Int                 @default(1)
   nom            String              @unique @db.VarChar(255)
   quantite       Int
@@ -87,7 +87,7 @@ model Piece {
 
 model Mecanicien {
   id             Int    @id @unique @default(autoincrement())
-  user           User   @relation(fields: [user_id], references: [id],  onDelete: Cascade)
+  user           User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id        Int    @default(1)
   nom            String @db.VarChar(255)
   prenom         String @db.VarChar(255)
@@ -113,7 +113,7 @@ model Maintenance {
   type_id       Int
   pieces        Maintenance_Piece[]
   description   String              @db.VarChar(500)
-  type2 Type2
+  type2         Type2
   cout          Decimal
   fichier       String              @db.VarChar(255)
   date          DateTime            @default(now())
@@ -141,6 +141,7 @@ model Maintenance_Piece {
   maintenance_id Int
   piece          Piece       @relation(fields: [piece_id], references: [id])
   piece_id       Int
+  quantite       Int
 
 
   @@id([maintenance_id, piece_id])
