@@ -275,6 +275,7 @@ maintenanceRouter.put('/:id', isAuth, async (req, res) => {
       },
     });
 
+    // supprimer les MAintenace_Pieces qui existent pour cette maintenance
     const deleteMaintenancePiece = await maintenance_Piece.deleteMany({
       where: {
         user_id,
@@ -282,6 +283,7 @@ maintenanceRouter.put('/:id', isAuth, async (req, res) => {
       },
     });
 
+    // Inserer des nouvelles maintenance pieces avec les nouveaux id des pieces
     let maintenancePiecesData = [];
     for (const p of newPiecesIdQte) {
       await maintenancePiecesData.push({
@@ -292,6 +294,7 @@ maintenanceRouter.put('/:id', isAuth, async (req, res) => {
     const newMaintenancePieces = await maintenance_Piece.createMany({
       data: maintenancePiecesData,
     });
+
     let oldPiecesIds = [];
     for (const p of oldPiecesIdQte) {
       oldPiecesIds.push(p.id);
@@ -300,6 +303,8 @@ maintenanceRouter.put('/:id', isAuth, async (req, res) => {
     for (const p of newPiecesIdQte) {
       newPiecesIds.push(p.id);
     }
+
+    // mettre à jour la quantité des pieces présentes dans la novellle et l'ancienne modification
     for (const newPiece of newPiecesIdQte) {
       for (const oldPiece of oldPiecesIdQte) {
         if (newPiece.id == oldPiece.id) {
@@ -336,6 +341,7 @@ maintenanceRouter.put('/:id', isAuth, async (req, res) => {
       }
     }
 
+    // déminuer la quantité des piece qui sont présente dans la nouvelle modification et non pas dans lancienne
     for (const p of newPiecesIdQte) {
       if (!oldPiecesIds.includes(p.id)) {
         const updatedPiece = await piece.updateMany({
@@ -354,6 +360,7 @@ maintenanceRouter.put('/:id', isAuth, async (req, res) => {
       }
     }
 
+    //retrouver la quantité initial des pieces qui sont pas présente de la nouvelle modification
     for (const p of oldPiecesIdQte) {
       if (!newPiecesIds.includes(p.id)) {
         const updatedPiece = await piece.updateMany({
