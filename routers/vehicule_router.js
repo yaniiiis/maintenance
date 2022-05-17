@@ -5,7 +5,7 @@ import { isAuth } from '../utils.js';
 const { PrismaClient } = Prisma;
 
 const vehiculeRouter = express.Router();
-const { vehicule } = new PrismaClient();
+const { vehicule, maintenance } = new PrismaClient();
 
 //tout les véhicules
 vehiculeRouter.get('/', isAuth, async (req, res) => {
@@ -20,26 +20,6 @@ vehiculeRouter.get('/', isAuth, async (req, res) => {
       },
     });
     res.status(200).send(vehicules);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// un seul vehicule
-
-vehiculeRouter.get('/:id', isAuth, async (req, res) => {
-  try {
-    const user_id = req.user_id;
-    const { id } = req.params;
-    const gettedVehicule = await vehicule.findFirst({
-      where: {
-        AND: {
-          id: Number(id),
-          user_id,
-        },
-      },
-    });
-    res.status(200).send(gettedVehicule);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -139,6 +119,139 @@ vehiculeRouter.post('/filtrer', isAuth, async (req, res) => {
       where: data,
     });
     res.status(200).send(filtredVehecules);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//nombre de vehicule totale
+vehiculeRouter.get('/count', async (req, res) => {
+  try {
+    const nbVehicules = await vehicule.count();
+    res.status(200).send(nbVehicules.toString());
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//les vehicules normal
+vehiculeRouter.get('/normal', async (req, res) => {
+  try {
+    const vehicules = await vehicule.findMany({
+      where: {
+        maintenances: {
+          none: {},
+        },
+      },
+    });
+    res.status(200).send(vehicules);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// les vehicules en maintenance
+vehiculeRouter.get('/panne', async (req, res) => {
+  try {
+    const vehicules = await vehicule.findMany({
+      where: {
+        maintenances: {
+          some: {
+            AND: {
+              repare: false,
+            },
+          },
+        },
+      },
+      include: {
+        maintenances: true,
+      },
+    });
+    res.status(200).send(vehicules);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//les vehicules en maintenance moins d'un mois
+vehiculeRouter.get('/orange', async (req, res) => {
+  try {
+    let date = new Date();
+    date.setMonth(date.getMonth() - 1);
+
+    const vehicules = await vehicule.findMany({
+      where: {
+        AND: {
+          maintenances: {
+            every: {
+              AND: {
+                date: {
+                  gte: date,
+                },
+                repare: false,
+              },
+            },
+          },
+          NOT: {
+            maintenances: {
+              none: {},
+            },
+          },
+        },
+      },
+      include: {
+        maintenances: true,
+      },
+    });
+    res.status(200).send(vehicules);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//les vehicules en maintenance plus d'un mois
+vehiculeRouter.get('/rouge', async (req, res) => {
+  try {
+    let date = new Date();
+    date.setMonth(date.getMonth() - 1);
+
+    const vehicules = await vehicule.findMany({
+      where: {
+        maintenances: {
+          some: {
+            AND: {
+              date: {
+                lt: date,
+              },
+              repare: false,
+            },
+          },
+        },
+      },
+      include: {
+        maintenances: true,
+      },
+    });
+    res.status(200).send(vehicules);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// un seul vehicule
+vehiculeRouter.get('/:id', isAuth, async (req, res) => {
+  try {
+    const user_id = req.user_id;
+    const { id } = req.params;
+    const gettedVehicule = await vehicule.findFirst({
+      where: {
+        AND: {
+          id: Number(id),
+          user_id,
+        },
+      },
+    });
+    res.status(200).send(gettedVehicule);
   } catch (error) {
     res.status(500).send(error.message);
   }

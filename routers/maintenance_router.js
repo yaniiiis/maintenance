@@ -35,30 +35,6 @@ maintenanceRouter.get('/', isAuth, async (req, res) => {
   }
 });
 
-// une seul maintenance
-maintenanceRouter.get('/:id', isAuth, async (req, res) => {
-  try {
-    const user_id = req.user_id;
-    const { id } = req.params;
-
-    const maintenances = await maintenance.findFirst({
-      where: {
-        user_id,
-        id: Number(id),
-      },
-      include: {
-        type: true,
-        mecanicien: true,
-        vehicule: true,
-        pieces: true,
-      },
-    });
-    res.status(200).send(maintenances);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
 //Ajouter un maintenance
 maintenanceRouter.post('/', isAuth, async (req, res) => {
   const user_id = req.user_id;
@@ -454,6 +430,146 @@ maintenanceRouter.post('/filtrer', isAuth, async (req, res) => {
       where: data,
     });
     res.status(200).send(filtredMaintenances);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//nombre des maintenance curatives
+maintenanceRouter.get('/curativenb', async (req, res) => {
+  try {
+    const maintenances = await maintenance.aggregate({
+      _count: {
+        _all: true,
+      },
+      where: {
+        type2: 'Curative',
+      },
+    });
+    res.status(200).send(maintenances);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// maintenance curatives
+maintenanceRouter.get('/curative', async (req, res) => {
+  try {
+    const maintenances = await maintenance.findMany({
+      where: {
+        type2: 'Curative',
+      },
+    });
+    res.status(200).send(maintenances);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//nombre des maintenance prevéventives
+maintenanceRouter.get('/preventivenb', async (req, res) => {
+  try {
+    const maintenances = await maintenance.aggregate({
+      _count: {
+        _all: true,
+      },
+      where: {
+        type2: 'Preventive',
+      },
+    });
+    res.status(200).send(maintenances);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// maintenance curatives
+maintenanceRouter.get('/preventive', async (req, res) => {
+  try {
+    const maintenances = await maintenance.findMany({
+      where: {
+        type2: 'Preventive',
+      },
+    });
+    res.status(200).send(maintenances);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//total dépense maintenance
+maintenanceRouter.get('/total', async (req, res) => {
+  try {
+    const total = await maintenance.aggregate({
+      _sum: {
+        cout: true,
+      },
+    });
+    res.status(200).send(total);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//somme des maintenance de chaque vehicule (de plus cher en terme de maintenance...)
+maintenanceRouter.get('/sommeparvehicule', async (req, res) => {
+  try {
+    const gettedMaintenance = await maintenance.groupBy({
+      by: ['vehicule_id'],
+
+      _sum: {
+        cout: true,
+      },
+      orderBy: {
+        _sum: {
+          cout: 'desc',
+        },
+      },
+    });
+    res.status(200).send(gettedMaintenance);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+//cout des trois derniere maintenance
+maintenanceRouter.get('/cout3', async (req, res) => {
+  try {
+    const couts = await maintenance.findMany({
+      orderBy: {
+        date: 'desc',
+      },
+      select: {
+        id: true,
+        cout: true,
+      },
+      take: 3,
+    });
+    res.status(200).send(couts);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// une seul maintenance
+maintenanceRouter.get('/:id', isAuth, async (req, res) => {
+  try {
+    const user_id = req.user_id;
+    const { id } = req.params;
+
+    const maintenances = await maintenance.findFirst({
+      where: {
+        user_id,
+        id: Number(id),
+      },
+      include: {
+        type: true,
+        mecanicien: true,
+        vehicule: true,
+        pieces: true,
+      },
+    });
+    res.status(200).send(maintenances);
   } catch (error) {
     res.status(500).send(error.message);
   }

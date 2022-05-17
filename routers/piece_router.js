@@ -5,7 +5,7 @@ import { isAuth } from '../utils.js';
 const { PrismaClient } = Prisma;
 
 const pieceRouter = express.Router();
-const { piece, fournisseur } = new PrismaClient();
+const { piece, fournisseur, maintenance_Piece } = new PrismaClient();
 
 //toute les piéces
 pieceRouter.get('/', isAuth, async (req, res) => {
@@ -20,26 +20,6 @@ pieceRouter.get('/', isAuth, async (req, res) => {
       },
     });
     res.status(200).send(pieces);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// une seule piece
-
-pieceRouter.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user_id = req.user_id;
-    const result = await piece.findFirst({
-      where: {
-        AND: {
-          id: Number(id),
-          user_id,
-        },
-      },
-    });
-    res.status(200).send(result);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -191,63 +171,38 @@ pieceRouter.post('/byids', async (req, res) => {
     res.send(error.message);
   }
 });
-let idsOfnotExistingPieces = [];
-const getPeice = async (id, qte) => {
-  const pInfos = await piece.findFirst({
-    where: {
-      AND: {
-        id: id,
-        quantite: qte,
-      },
-    },
-    select: {
-      id: true,
-    },
-  });
-  if (!pInfos) {
-    idsOfnotExistingPieces.push(id);
-  }
-};
-// test piece cases
-pieceRouter.post('/test', async (req, res) => {
+
+//pieces plus uitlisés ,pieces ordonnée selon leurs quantité utilisé dans les maintenance par ordre décroissant
+pieceRouter.get('/plusutilise', async (req, res) => {
   try {
-    const { pieces } = req.body;
-    await pieces.forEach((p) => {
-      getPeice(p.id, p.quantite);
+    const p = await maintenance_Piece.groupBy({
+      by: ['piece_id'],
+      orderBy: {
+        _sum: {
+          quantite: 'desc',
+        },
+      },
     });
-    console.log(idsOfnotExistingPieces);
-    res.send('ok');
-    return;
+    res.send(p);
+  } catch (error) {
+    res.send(error.message);
+  }
+});
 
-    //   })
-    //   const gettedPieces = await piece.findMany({
-    //     where: {
-    //       AND:{
-    //         quantite:{
-
-    //         }
-    //       }
-
-    //     },
-    //     select: {
-    //       id: true,
-    //     },
-    //   });
-    //   if (gettedPieces.length < pieces.length) {
-    //     let ids = [];
-    //     gettedPieces.forEach((element) => {
-    //       ids.push(element.id);
-    //     });
-    //     const filtred = pieces.filter((piece) => !ids.includes(piece.id));
-    //     let filtredIds = [];
-    //     filtred.forEach((element) => {
-    //       filtredIds.push(element.id);
-    //     });
-    //     console.log('filtred : ', filtred);
-    //     res.status(201).send({ not_available: filtredIds });
-    //   } else {
-    //     res.status(200).send(gettedPieces);
-    //}
+// une seule piece
+pieceRouter.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user_id;
+    const result = await piece.findFirst({
+      where: {
+        AND: {
+          id: Number(id),
+          user_id,
+        },
+      },
+    });
+    res.status(200).send(result);
   } catch (error) {
     res.status(500).send(error.message);
   }

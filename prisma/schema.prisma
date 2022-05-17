@@ -114,9 +114,10 @@ model Maintenance {
   pieces        Maintenance_Piece[]
   description   String              @db.VarChar(500)
   type2         Type2
-  cout          Decimal
+  cout          Float
   fichier       String              @db.VarChar(255)
   date          DateTime            @default(now())
+  repare        Boolean             @default(false)
 
   @@map(name: "maintenances")
 }
