@@ -70,6 +70,7 @@ maintenanceRouter.post('/', isAuth, async(req, res) => {
             fichier,
             piecesIdQte,
             date,
+            repare
         } = req.body;
 
         if (piecesIdQte == null) {
@@ -132,6 +133,7 @@ maintenanceRouter.post('/', isAuth, async(req, res) => {
                     fichier,
                     mecanicien_id,
                     date,
+                    repare
                 },
             });
             if (createdMaintenance) {
@@ -209,6 +211,7 @@ maintenanceRouter.put('/:id', isAuth, async(req, res) => {
             type2,
             fichier,
             oldPiecesIdQte,
+            repare
         } = req.body;
 
         if (piecesIdQte == null) {
@@ -276,6 +279,7 @@ maintenanceRouter.put('/:id', isAuth, async(req, res) => {
                 type2,
                 cout,
                 fichier,
+                repare
             },
         });
         // supprimer les MAintenace_Pieces qui existent pour cette maintenance
