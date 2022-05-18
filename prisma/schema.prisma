@@ -31,6 +31,8 @@ model Vehicule {
   user            User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id         Int           @default(1)
   traqueur        String        @db.VarChar(255)
+  trackerId       Int           @default(1)
+  sourceId        Int           @default(1)
   nom             String        @db.VarChar(255)
   immatriculation String        @db.VarChar(255)
   numero_chassis  String        @db.VarChar(255)
