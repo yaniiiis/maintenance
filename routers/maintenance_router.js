@@ -450,7 +450,7 @@ maintenanceRouter.get('/curativenb', async(req, res) => {
                 type2: 'Curative',
             },
         });
-        res.status(200).send(maintenances);
+        res.status(200).send({ count: maintenances._count._all });
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -481,7 +481,7 @@ maintenanceRouter.get('/preventivenb', async(req, res) => {
                 type2: 'Preventive',
             },
         });
-        res.status(200).send(maintenances);
+        res.status(200).send({ count: maintenances._count._all });
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -509,11 +509,47 @@ maintenanceRouter.get('/total', async(req, res) => {
                 cout: true,
             },
         });
-        res.status(200).send(total);
+        res.status(200).send(total._sum);
     } catch (error) {
         res.status(500).send(error.message);
     }
 });
+
+
+
+//somme des maintenance de chaque vehicule
+maintenanceRouter.get('/depenseparvehicule', async(req, res) => {
+    try {
+        const gettedMaintenance = await maintenance.groupBy({
+            by: ['vehicule_id'],
+
+            _sum: {
+                cout: true,
+            },
+        });
+
+        const ids = gettedMaintenance.map(m => { return m.vehicule_id })
+        const vehicules = await vehicule.findMany({
+            where: {
+                id: { in: ids },
+            },
+        });
+
+
+
+        let data = []
+        gettedMaintenance.forEach(
+            m => {
+                data.push({ cout: m._sum.cout, vehicule: vehicules.find(v => { return v.id == m.vehicule_id }).nom })
+            }
+        )
+        res.status(200).send(data);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+
 
 //somme des maintenance de chaque vehicule (de plus cher en terme de maintenance...)
 maintenanceRouter.get('/sommeparvehicule', async(req, res) => {
@@ -530,7 +566,13 @@ maintenanceRouter.get('/sommeparvehicule', async(req, res) => {
                 },
             },
         });
-        res.status(200).send(gettedMaintenance);
+        let data = []
+        gettedMaintenance.forEach(
+            m => {
+                data.push({ cout: m._sum.cout, vehicule_id: m.vehicule_id })
+            }
+        )
+        res.status(200).send(data);
     } catch (error) {
         res.status(500).send(error.message);
     }

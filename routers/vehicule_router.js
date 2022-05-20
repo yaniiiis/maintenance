@@ -200,7 +200,7 @@ vehiculeRouter.get('/orange', async(req, res) => {
     try {
         let date = new Date();
         date.setMonth(date.getMonth() - 1);
-
+        console.log(date)
         const vehicules = await vehicule.findMany({
             where: {
                 AND: {
