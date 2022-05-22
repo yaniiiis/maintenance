@@ -157,10 +157,14 @@ vehiculeRouter.get('/count', async(req, res) => {
 });
 
 //les vehicules normal
-vehiculeRouter.get('/normal', async(req, res) => {
+vehiculeRouter.get('/normal', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
+
     try {
         const vehicules = await vehicule.findMany({
             where: {
+                user_id,
                 maintenances: {
                     none: {},
                 },
@@ -173,10 +177,13 @@ vehiculeRouter.get('/normal', async(req, res) => {
 });
 
 // les vehicules en maintenance
-vehiculeRouter.get('/panne', async(req, res) => {
+vehiculeRouter.get('/panne', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
     try {
         const vehicules = await vehicule.findMany({
             where: {
+                user_id,
                 maintenances: {
                     some: {
                         AND: {
@@ -196,13 +203,16 @@ vehiculeRouter.get('/panne', async(req, res) => {
 });
 
 //les vehicules en maintenance moins d'un mois
-vehiculeRouter.get('/orange', async(req, res) => {
+vehiculeRouter.get('/orange', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
     try {
         let date = new Date();
         date.setMonth(date.getMonth() - 1);
         console.log(date)
         const vehicules = await vehicule.findMany({
             where: {
+                user_id,
                 AND: {
                     maintenances: {
                         every: {
@@ -232,13 +242,16 @@ vehiculeRouter.get('/orange', async(req, res) => {
 });
 
 //les vehicules en maintenance plus d'un mois
-vehiculeRouter.get('/rouge', async(req, res) => {
+vehiculeRouter.get('/rouge', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
     try {
         let date = new Date();
         date.setMonth(date.getMonth() - 1);
 
         const vehicules = await vehicule.findMany({
             where: {
+                user_id,
                 maintenances: {
                     some: {
                         AND: {

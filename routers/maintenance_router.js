@@ -440,7 +440,9 @@ maintenanceRouter.post('/filtrer', isAuth, async(req, res) => {
 });
 
 //nombre des maintenance curatives
-maintenanceRouter.get('/curativenb', async(req, res) => {
+maintenanceRouter.get('/curativenb', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
     try {
         const maintenances = await maintenance.aggregate({
             _count: {
@@ -448,6 +450,7 @@ maintenanceRouter.get('/curativenb', async(req, res) => {
             },
             where: {
                 type2: 'Curative',
+                user_id,
             },
         });
         res.status(200).send({ count: maintenances._count._all });
@@ -457,11 +460,14 @@ maintenanceRouter.get('/curativenb', async(req, res) => {
 });
 
 // maintenance curatives
-maintenanceRouter.get('/curative', async(req, res) => {
+maintenanceRouter.get('/curative', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
     try {
         const maintenances = await maintenance.findMany({
             where: {
                 type2: 'Curative',
+                user_id,
             },
         });
         res.status(200).send(maintenances);
@@ -471,7 +477,8 @@ maintenanceRouter.get('/curative', async(req, res) => {
 });
 
 //nombre des maintenance prevéventives
-maintenanceRouter.get('/preventivenb', async(req, res) => {
+maintenanceRouter.get('/preventivenb', isAuth, async(req, res) => {
+    const user_id = req.user_id;
     try {
         const maintenances = await maintenance.aggregate({
             _count: {
@@ -479,6 +486,8 @@ maintenanceRouter.get('/preventivenb', async(req, res) => {
             },
             where: {
                 type2: 'Preventive',
+                user_id,
+
             },
         });
         res.status(200).send({ count: maintenances._count._all });
@@ -488,11 +497,16 @@ maintenanceRouter.get('/preventivenb', async(req, res) => {
 });
 
 // maintenance curatives
-maintenanceRouter.get('/preventive', async(req, res) => {
+maintenanceRouter.get('/preventive', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
+
+
     try {
         const maintenances = await maintenance.findMany({
             where: {
                 type2: 'Preventive',
+                user_id,
             },
         });
         res.status(200).send(maintenances);
@@ -502,12 +516,18 @@ maintenanceRouter.get('/preventive', async(req, res) => {
 });
 
 //total dépense maintenance
-maintenanceRouter.get('/total', async(req, res) => {
+maintenanceRouter.get('/total', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
     try {
         const total = await maintenance.aggregate({
             _sum: {
                 cout: true,
             },
+            where: {
+
+                user_id,
+            }
         });
         res.status(200).send(total._sum);
     } catch (error) {
@@ -518,7 +538,10 @@ maintenanceRouter.get('/total', async(req, res) => {
 
 
 //somme des maintenance de chaque vehicule
-maintenanceRouter.get('/depenseparvehicule', async(req, res) => {
+maintenanceRouter.get('/depenseparvehicule', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
+
     try {
         const gettedMaintenance = await maintenance.groupBy({
             by: ['vehicule_id'],
@@ -526,6 +549,9 @@ maintenanceRouter.get('/depenseparvehicule', async(req, res) => {
             _sum: {
                 cout: true,
             },
+            where: {
+                user_id,
+            }
         });
 
         const ids = gettedMaintenance.map(m => { return m.vehicule_id })
@@ -552,7 +578,10 @@ maintenanceRouter.get('/depenseparvehicule', async(req, res) => {
 
 
 //somme des maintenance de chaque vehicule (de plus cher en terme de maintenance...)
-maintenanceRouter.get('/sommeparvehicule', async(req, res) => {
+maintenanceRouter.get('/sommeparvehicule', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
+
     try {
         const gettedMaintenance = await maintenance.groupBy({
             by: ['vehicule_id'],
@@ -565,6 +594,10 @@ maintenanceRouter.get('/sommeparvehicule', async(req, res) => {
                     cout: 'desc',
                 },
             },
+
+            where: {
+                user_id,
+            }
         });
         let data = []
         gettedMaintenance.forEach(
@@ -579,7 +612,10 @@ maintenanceRouter.get('/sommeparvehicule', async(req, res) => {
 });
 
 //cout des trois derniere maintenance
-maintenanceRouter.get('/cout3', async(req, res) => {
+maintenanceRouter.get('/cout3', isAuth, async(req, res) => {
+    const user_id = req.user_id;
+
+
     try {
         const couts = await maintenance.findMany({
             orderBy: {
@@ -588,6 +624,9 @@ maintenanceRouter.get('/cout3', async(req, res) => {
             select: {
                 id: true,
                 cout: true,
+            },
+            where: {
+                user_id,
             },
             take: 3,
         });
@@ -599,6 +638,7 @@ maintenanceRouter.get('/cout3', async(req, res) => {
 
 // une seul maintenance
 maintenanceRouter.get('/:id', isAuth, async(req, res) => {
+
     try {
         const user_id = req.user_id;
         const { id } = req.params;
