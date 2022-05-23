@@ -402,8 +402,10 @@ maintenanceRouter.delete('/:id', isAuth, async (req, res) => {
 
     const maintenanceExist = await maintenance.findFirst({
       where: {
-        id: Number(id),
-        user_id,
+        AND: {
+          id: Number(id),
+          user_id,
+        },
       },
     });
     if (maintenanceExist) {
@@ -477,8 +479,10 @@ maintenanceRouter.get('/curativenb', isAuth, async (req, res) => {
         _all: true,
       },
       where: {
-        type2: 'Curative',
-        user_id,
+        AND: {
+          type2: 'Curative',
+          user_id,
+        },
       },
     });
     res.status(200).send({ count: maintenances._count._all });
@@ -518,8 +522,10 @@ maintenanceRouter.get('/curative', isAuth, async (req, res) => {
   try {
     const maintenances = await maintenance.findMany({
       where: {
-        type2: 'Curative',
-        user_id,
+        AND: {
+          type2: 'Curative',
+          user_id,
+        },
       },
     });
     res.status(200).send(maintenances);
@@ -537,8 +543,10 @@ maintenanceRouter.get('/preventivenb', isAuth, async (req, res) => {
         _all: true,
       },
       where: {
-        type2: 'Preventive',
-        user_id,
+        AND: {
+          type2: 'Preventive',
+          user_id,
+        },
       },
     });
     res.status(200).send({ count: maintenances._count._all });
