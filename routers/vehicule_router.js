@@ -17,7 +17,8 @@ vehiculeRouter.get('/', isAuth, async(req, res) => {
                 user_id,
                 maintenances: {
                     every: {
-                        repare: false,
+                        etat: 'EnCours',
+
                     }
 
 
@@ -203,7 +204,7 @@ vehiculeRouter.get('/panne', isAuth, async(req, res) => {
                 maintenances: {
                     some: {
                         AND: {
-                            repare: false,
+                            etat: 'EnCours',
                         },
                     },
                 },
@@ -236,7 +237,7 @@ vehiculeRouter.get('/orange', isAuth, async(req, res) => {
                                 // date: {
                                 //     gte: date,
                                 // },
-                                repare: false,
+                                etat: 'EnCours',
                             },
                         },
                     },
@@ -277,7 +278,8 @@ vehiculeRouter.get('/rouge/:days', isAuth, async(req, res) => {
                                 date: {
                                     lt: date,
                                 },
-                                repare: false,
+                                etat: 'EnCours',
+
                             },
                         },
                     },

@@ -119,7 +119,9 @@ model Maintenance {
   cout          Float
   fichier       String              @db.VarChar(255)
   date          DateTime            @default(now())
-  repare        Boolean             @default(false)
+  alerte_date   DateTime?          
+  alerte_km     Int?        
+  etat          Etat                @default(EnCours)
 
   @@map(name: "maintenances")
 }
@@ -127,6 +129,12 @@ model Maintenance {
 enum Type2 {
   Curative
   Preventive
+}
+
+enum Etat {
+  Avant
+  EnCours
+  Repare
 }
 
 model TypeMaintenance {
