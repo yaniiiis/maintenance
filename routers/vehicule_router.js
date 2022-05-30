@@ -16,10 +16,7 @@ vehiculeRouter.get('/', isAuth, async(req, res) => {
             where: {
                 user_id,
                 maintenances: {
-                    every: {
-                        etat: 'EnCours',
 
-                    }
 
 
                 },
@@ -32,7 +29,7 @@ vehiculeRouter.get('/', isAuth, async(req, res) => {
 
         vehicules.forEach(
             v => {
-                v.operationnel = v.maintenances.length == 0
+                v.operationnel = v.maintenances.filter(m => { return m.etat == 'EnCours' }).length == 0
                 delete v.maintenances;
 
             }
@@ -182,7 +179,14 @@ vehiculeRouter.get('/normal', isAuth, async(req, res) => {
                 AND: {
                     user_id,
                     maintenances: {
-                        none: {},
+                        none: {
+
+
+
+                            etat: 'EnCours',
+
+
+                        },
                     },
                 },
             },
@@ -223,6 +227,7 @@ vehiculeRouter.get('/panne', isAuth, async(req, res) => {
 vehiculeRouter.get('/orange', isAuth, async(req, res) => {
     const user_id = req.user_id;
 
+
     try {
         let date = new Date();
         date.setMonth(date.getMonth() - 1);
@@ -232,7 +237,7 @@ vehiculeRouter.get('/orange', isAuth, async(req, res) => {
                 user_id,
                 AND: {
                     maintenances: {
-                        every: {
+                        some: {
                             AND: {
                                 // date: {
                                 //     gte: date,

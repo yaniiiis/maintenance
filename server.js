@@ -7,6 +7,7 @@ import pieceRouter from './routers/piece_router.js';
 import typeMaintenanceRouter from './routers/type_maintenance_router.js';
 import userRouter from './routers/user_router.js';
 import vehiculeRouter from './routers/vehicule_router.js';
+import notificationRouter from './routers/notification_router.js';
 
 const app = express();
 import cors from 'cors';
@@ -27,6 +28,8 @@ app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/maintenancetype', typeMaintenanceRouter);
 app.use('/api/assurance', assuranceRouter);
 app.use('/api/user', userRouter);
+app.use('/api/notification', notificationRouter);
+
 
 app.listen(5000, () => {
     console.log('listening at port 5000...');

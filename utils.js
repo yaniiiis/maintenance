@@ -3,7 +3,7 @@ import axios from 'axios';
 export const isAuth = async(req, res, next) => {
     try {
         const authorization = req.headers.authorization;
-        console.log(authorization)
+
         if (authorization) {
             const token = authorization.slice(7, authorization.length);
             const { data } = await axios.get(
@@ -13,7 +13,9 @@ export const isAuth = async(req, res, next) => {
                 return res.status(401).send('Invalid hash');
             }
             const { id } = data.user_info;
-            (req.user_id = id), next();
+            (req.user_id = id),
+            (req.hash = token),
+            next();
         } else {
             res.status(400).send('No hash given');
         }

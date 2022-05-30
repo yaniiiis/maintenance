@@ -76,7 +76,7 @@ maintenanceRouter.post('/', isAuth, async(req, res) => {
         } = req.body;
 
         if (piecesIdQte == null) {
-            return res.status(400).send('Pieces not found');
+            return res.status(401).send('Pieces not found');
         }
 
         for (const p of piecesIdQte) {
@@ -85,8 +85,8 @@ maintenanceRouter.post('/', isAuth, async(req, res) => {
 
         if (idsOfnotExistingPieces.length > 0) {
             return res
-                .status(201)
-                .send('pieces ' + idsOfnotExistingPieces + ' quantité non disponbile');
+                .status(401)
+                .send("Quantité des piéces non disponible");
         } else {
             const vehiculeExist = await vehicule.findUnique({
                 where: {
@@ -221,7 +221,7 @@ maintenanceRouter.put('/:id', isAuth, async(req, res) => {
         } = req.body;
 
         if (piecesIdQte == null) {
-            return res.status(400).send('Pieces not found');
+            return res.status(401).send('Pieces not found');
         }
 
         for (const p of piecesIdQte) {
@@ -230,8 +230,8 @@ maintenanceRouter.put('/:id', isAuth, async(req, res) => {
 
         if (idsOfnotExistingPieces.length > 0) {
             return res
-                .status(201)
-                .send('pieces ' + idsOfnotExistingPieces + ' quantité non disponbile');
+                .status(401)
+                .send('Quantitées des piéces non disponible');
         }
 
         const maintenanceExist = await maintenance.findFirst({
@@ -875,6 +875,8 @@ maintenanceRouter.post('/dernierscoups', isAuth, async(req, res) => {
                 vehicule: vehicules.find((v) => {
                     return v.id == m.vehicule_id;
                 }).nom,
+                maintenanceId: m.id,
+                maintenanceNom: m.nom
             });
         });
         res.status(200).send(data);
