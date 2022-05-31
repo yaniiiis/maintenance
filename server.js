@@ -11,6 +11,7 @@ import notificationRouter from './routers/notification_router.js';
 
 const app = express();
 import cors from 'cors';
+import maintenanceVehiculeRouter from './routers/maintenance_vehicule_router.js';
 
 app.use(express.json());
 
@@ -29,6 +30,7 @@ app.use('/api/maintenancetype', typeMaintenanceRouter);
 app.use('/api/assurance', assuranceRouter);
 app.use('/api/user', userRouter);
 app.use('/api/notification', notificationRouter);
+app.use('/api/maintenances_vehicule', maintenanceVehiculeRouter);
 
 
 app.listen(5000, () => {
