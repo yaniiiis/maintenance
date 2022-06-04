@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN     "maxDepenseAlert" DOUBLE PRECISION NOT NULL DEFAULT -1;

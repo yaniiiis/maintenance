@@ -22,6 +22,7 @@ model User {
   mecaniciens        Mecanicien[]
   maintenances       Maintenance[]
   maintenance_pieces Maintenance_Piece[]
+  maxDepenseAlert    Float               @default(-1)
 
   @@map(name: "users")
 }
@@ -40,6 +41,7 @@ model Vehicule {
   assurance       Assurance?
   photo           String        @db.VarChar(255)
   maintenances    Maintenance[]
+
 
 
   @@map(name: "vehicules")
@@ -119,8 +121,8 @@ model Maintenance {
   cout          Float
   fichier       String              @db.VarChar(255)
   date          DateTime            @default(now())
-  alerte_date   DateTime?          
-  alerte_km     Int?        
+  alerte_date   DateTime?
+  alerte_km     Int?
   etat          Etat                @default(EnCours)
 
   @@map(name: "maintenances")
