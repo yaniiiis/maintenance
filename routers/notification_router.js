@@ -64,9 +64,10 @@ notificationRouter.get('/', isAuth, async (req, res) => {
 });
 
 //get number of not inserted vehicul
-notificationRouter.post('/dashboard', isAuth, async (req, res) => {
+notificationRouter.post('/vehicules', isAuth, async (req, res) => {
   try {
-    const { hash } = req.body;
+    const hash = req.hash;
+
     const getVehiculesFromNavixy = await axios.post(
       'https://www.mrigel.dz/api/vehicle/list',
       {
