@@ -6,7 +6,7 @@ import axios from 'axios';
 const { PrismaClient } = Prisma;
 
 const notificationRouter = express.Router();
-const { maintenance, vehicule } = new PrismaClient();
+const { maintenance, vehicule, user } = new PrismaClient();
 
 notificationRouter.get('/', isAuth, async (req, res) => {
   const user_id = req.user_id;
@@ -98,6 +98,56 @@ notificationRouter.post('/dashboard', isAuth, async (req, res) => {
     });
   } catch (error) {
     return res.status(400).send(error.message);
+  }
+});
+
+//max depense
+notificationRouter.post('/depense', isAuth, async (req, res) => {
+  try {
+    const user_id = req.user_id;
+    const gotMaxDepnse = await user.findFirst({
+      where: {
+        id: Number(user_id),
+      },
+      select: {
+        maxDepenseAlert: true,
+      },
+    });
+    const maxDepenseToFloat = Number(gotMaxDepnse.maxDepenseAlert);
+
+    const depenseByVehicule = await maintenance.groupBy({
+      by: ['vehicule_id'],
+      _sum: {
+        cout: true,
+      },
+      where: {
+        user_id: Number(user_id),
+      },
+    });
+    //  return res.send(depenseByVehicule);
+    const ids = depenseByVehicule.map((m) => {
+      return m.vehicule_id;
+    });
+    const vehicules = await vehicule.findMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+    let data = [];
+    depenseByVehicule.forEach((m) => {
+      const foundVehicul = vehicules.find((v) => v.id == m.vehicule_id);
+      if (m._sum.cout > maxDepenseToFloat) {
+        data.push({
+          cout: m._sum.cout,
+          vehicule_id: foundVehicul.id,
+          vehicule_name: foundVehicul.nom,
+        });
+      }
+    });
+
+    res.send(data);
+  } catch (error) {
+    res.status(400).send(error.message);
   }
 });
 
