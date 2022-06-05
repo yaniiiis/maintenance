@@ -115,7 +115,10 @@ notificationRouter.post('/depense', isAuth, async (req, res) => {
       },
     });
     const maxDepenseToFloat = Number(gotMaxDepnse.maxDepenseAlert);
-
+    
+    if (maxDepenseToFloat<0) return res.status(200).send([])
+    
+    
     const depenseByVehicule = await maintenance.groupBy({
       by: ['vehicule_id'],
       _sum: {
