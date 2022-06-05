@@ -111,6 +111,31 @@ userRouter.put('/', async (req, res) => {
   }
 });
 
+
+
+//get user maxDepense
+userRouter.get('/depense', isAuth, async (req, res) => {
+  try {
+    const user_id = req.user_id;
+    const userData = await user.findFirst({
+      where: {
+        id: Number(user_id),
+      },
+  
+    });
+
+    const result={
+      enabled:userData.maxDepenseAlert>-1,
+      maxDepenseAlert:userData.maxDepenseAlert
+
+
+    }
+    
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
 //set user maxDepense
 userRouter.put('/depense', isAuth, async (req, res) => {
   try {
@@ -129,6 +154,25 @@ userRouter.put('/depense', isAuth, async (req, res) => {
     res.status(400).send(error.message);
   }
 });
+
+//disable user maxDepense
+userRouter.put('/depense/disable', isAuth, async (req, res) => {
+  try {
+    const user_id = req.user_id;
+
+    const settedUser = await user.update({
+      where: {
+        id: Number(user_id),
+      },
+      data: {
+        maxDepenseAlert:-1,
+      },
+    });
+    res.status(200).send(settedUser);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+})
 
 //delete user
 userRouter.delete('/:id', async (req, res) => {
